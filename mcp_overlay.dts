@@ -1,0 +1,44 @@
+/dts-v1/;
+/plugin/;
+
+// deivce tree overlay for my Raspberry Pi 5 (bcm2712)
+// created an I2C device node for my MCP23017 I2C expander at address 0x27
+// I use compatible  = "myvendor,led-lottery" to match with my custom driver
+// I also set up custom properties to configure my led pins, button pin, and buzzer pin,
+// as well as the GPIO line on the Raspberry Pi that will be used to handle interrupts
+
+/ {
+	// indicates that this overlay targets the Raspberry Pi 5 SoC
+	compatible = "brcm,bcm2712";
+
+	// this fragment targets i2c1 because in the Raspberry Pi 5 device tree, "&i2c1" corresponds to
+	// the hardware I2C bus number 1
+	fragment@0 {
+		target = <&i2c1>;
+		__overlay__ {
+            		#address-cells = <1>;
+            		#size-cells = <0>;
+			status = "okay";
+
+			// my custom device node is named mcp_lottery@27 and is at address 0x27 on i2c1
+			// the kernel uses "compatible = "myvendor,led-lottery" to match my custom driver
+			// via the match table
+			led_lottery_i2c: mcp_lottery@27 {
+				compatible = "myvendor,led-lottery";
+				reg = <0x27>;
+
+				// here I create an array of 4 pins to reserve my 4 leds with on the MCP
+				// I wired led #1 (red) to PA0, led #2 (green) to PA1, led #3 (blue) to
+				// PA2, and led #4 (purple) to PA3.
+				// I wired the button to PA4, and the buzzer to PA5
+				led-lottery,led-pins = <0 1 2 3>;
+				led-lottery,button-pin = <4>;
+				led-lottery,buzzer-pin = <5>;
+
+				// I wired the MCP expander's INTA to GPIO23 on the Raspberry Pi, so that
+				/ will be used for handling interrupts on the Pi 
+				interrupt-gpio = <&gpio 23 0>;
+			};
+		};
+	};
+};
