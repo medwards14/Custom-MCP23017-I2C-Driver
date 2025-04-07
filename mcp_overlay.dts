@@ -36,7 +36,7 @@
 				led-lottery,buzzer-pin = <5>;
 
 				// I wired the MCP expander's INTA to GPIO23 on the Raspberry Pi, so that
-				/ will be used for handling interrupts on the Pi 
+				// will be used for handling interrupts on the Pi 
 				interrupt-gpio = <&gpio 23 0>;
 			};
 		};
